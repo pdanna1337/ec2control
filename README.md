@@ -35,6 +35,7 @@ and  for Start Stop
             "Effect": "Allow",
             "Action": [
                 "ec2:StartInstances",
+                "ec2:StopInstances",
                 "ec2:DescribeInstances"
             ],
             "Resource": "arn:aws:ec2:your_aws_region:your_aws_account_id:instance/i-xxxidoftheec2instance"
