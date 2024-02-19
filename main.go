@@ -76,7 +76,21 @@ func showInstancesList(app *tview.Application, svc *ec2.EC2) {
 
     list := tview.NewList()
     for _, info := range instancesInfo {
-        displayText := fmt.Sprintf("%s (%s) - %s", info.Name, info.Id, info.State)
+        var stateColor string
+        switch info.State {
+        case "running":
+            stateColor = "[green]"
+        case "stopped":
+            stateColor = "[red]"
+        case "stopping":
+            stateColor = "[yellow]"
+        case "pending":
+            stateColor = "[brown]"
+        default:
+            stateColor = "[white]"
+        }
+
+        displayText := fmt.Sprintf("%s (%s) - %s%s[white]", info.Name, info.Id, stateColor, info.State)
         list.AddItem(displayText, "", 0, makeInstanceSelectionHandler(app, svc, info))
     }
 
