@@ -10,6 +10,39 @@ Before compiling and running this application, ensure the following are installe
 
 - **AWS CLI:** Configure the AWS Command Line Interface (CLI) with your AWS credentials (Access Key ID and Secret Access Key). Follow the [AWS CLI configuration guide](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html).
 
+Policies for the user  
+Describe
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "ec2:DescribeInstances",
+            "Resource": "*"
+        }
+    ]
+}
+```
+
+and  for Start Stop  
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:StartInstances",
+                "ec2:DescribeInstances"
+            ],
+            "Resource": "arn:aws:ec2:your_aws_region:your_aws_account_id:instance/i-xxxidoftheec2instance"
+        }
+    ]
+}
+```
+
 ## Download the Source Code
 
 1. **Download the Source Code:** Download the ZIP file from [here](https://github.com/p2zbar/ec2control/archive/refs/heads/main.zip).
