@@ -10,7 +10,9 @@ Before compiling and running this application, ensure the following are installe
 
 - **AWS CLI:** Configure the AWS Command Line Interface (CLI) with your AWS credentials (Access Key ID and Secret Access Key). Follow the [AWS CLI configuration guide](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html).
 
-Policies for the user  
+You need to create 2 policies , one to show instances.
+
+Policies
 Describe
 
 ```
@@ -26,7 +28,7 @@ Describe
 }
 ```
 
-and  for Start Stop  
+and one for start stop
 ```
 {
     "Version": "2012-10-17",
@@ -43,6 +45,8 @@ and  for Start Stop
     ]
 }
 ```
+
+Create the user and attribute him this two policies.
 
 ## Download the Source Code
 
@@ -69,6 +73,11 @@ Fetch and install dependencies:
 ```
 go mod tidy
 ```
+
+```
+Modify in the main.go in the function main L138 i-xxxx by your real EC2 Instance ID
+```
+
 
 Compile the application to create an executable:  
 ```  
