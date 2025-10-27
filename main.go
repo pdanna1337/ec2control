@@ -24,8 +24,10 @@ func createSession() (*ec2.EC2, error) {
     return ec2.New(sess), nil
 }
 
-func getInstancesInfo(svc *ec2.EC2) ([]InstanceInfo, error) {
-    input := &ec2.DescribeInstancesInput{}
+func getInstancesInfo(svc *ec2.EC2, instanceID string) ([]InstanceInfo, error) {
+    input := &ec2.DescribeInstancesInput{
+        InstanceIds: []*string{aws.String(instanceID)}, // Filter for the specific instance
+    }
     result, err := svc.DescribeInstances(input)
     if err != nil {
         return nil, err
@@ -67,8 +69,8 @@ func stopInstance(svc *ec2.EC2, instanceId string) error {
     return err
 }
 
-func showInstancesList(app *tview.Application, svc *ec2.EC2) {
-    instancesInfo, err := getInstancesInfo(svc)
+func showInstancesList(app *tview.Application, svc *ec2.EC2, instanceID string) {
+    instancesInfo, err := getInstancesInfo(svc, instanceID)
     if err != nil {
         fmt.Println("Error retrieving EC2 instance information:", err)
         return
@@ -105,32 +107,20 @@ func makeInstanceSelectionHandler(app *tview.Application, svc *ec2.EC2, info Ins
             AddButtons([]string{"Start", "Stop", "Cancel"}).
             SetDoneFunc(func(buttonIndex int, buttonLabel string) {
                 switch buttonLabel {
-                case "Start", "Stop":
-                    confirmText := fmt.Sprintf("Are you sure you want to %s %s?", buttonLabel, info.Id)
-                    confirmationModal := tview.NewModal().
-                        SetText(confirmText).
-                        AddButtons([]string{"Confirm", "Cancel"}).
-                        SetDoneFunc(func(confirmIndex int, confirmLabel string) {
-                            if confirmLabel == "Confirm" {
-                                if buttonLabel == "Start" {
-                                    err := startInstance(svc, info.Id)
-                                    if err != nil {
-                                        fmt.Println("Error starting the instance:", err)
-                                    }
-                                } else {
-                                    err := stopInstance(svc, info.Id)
-                                    if err != nil {
-                                        fmt.Println("Error stopping the instance:", err)
-                                    }
-                                }
-                                showInstancesList(app, svc) // Reload the instance list
-                            } else {
-                                showInstancesList(app, svc) // Return to the list if "Cancel" is selected
-                            }
-                        })
-                    app.SetRoot(confirmationModal, false).SetFocus(confirmationModal)
-                default:
-                    showInstancesList(app, svc) // Return to the list if "Cancel" is selected in the first modal
+                case "Start":
+                    err := startInstance(svc, info.Id)
+                    if err != nil {
+                        fmt.Println("Error starting the instance:", err)
+                    }
+                    showInstancesList(app, svc, info.Id) // Reload the instance list
+                case "Stop":
+                    err := stopInstance(svc, info.Id)
+                    if err != nil {
+                        fmt.Println("Error stopping the instance:", err)
+                    }
+                    showInstancesList(app, svc, info.Id) // Reload the instance list
+                case "Cancel":
+                    showInstancesList(app, svc, info.Id) // Return to the list
                 }
             })
         app.SetRoot(actionModal, false).SetFocus(actionModal)
@@ -145,7 +135,9 @@ func main() {
     }
 
     app := tview.NewApplication()
-    showInstancesList(app, svc)
+    instanceID := "i-xxxx" // Your specific instance ID
+
+    showInstancesList(app, svc, instanceID)
 
     if err := app.Run(); err != nil {
         fmt.Printf("Error running the application: %v\n", err)
